@@ -18,7 +18,7 @@ public class AddJar2LocalRepo {
     public static File selectedFile;
     public static File bat_file;
     public static String copy_jar_file;
-    public static String sys_encode="GBK";
+    public static String sys_encode = "GBK";
 
 
     // 获取系统的分辨率
@@ -41,9 +41,26 @@ public class AddJar2LocalRepo {
         InputStream chcp_in = chcp_process.getInputStream();
         BufferedReader chcp_reader = new BufferedReader(new InputStreamReader(chcp_in));
         String chcp = chcp_reader.readLine().split(":")[1].trim();
-        switch (chcp){
-            case "936" : sys_encode = "GBK";break;
-            case "65001" : sys_encode = "UTF-8";break;
+        switch (chcp) {
+            case "936":
+                sys_encode = "GBK";
+                break;
+            case "65001":
+                sys_encode = "UTF-8";
+                break;
+        }
+        // 判断mvn 是否正确配置
+        Process mvn_process = Runtime.getRuntime().exec("cmd /c mvn -v");
+        InputStream mvn_stream = mvn_process.getInputStream();
+        BufferedReader mvn_reader = new BufferedReader(new InputStreamReader(mvn_stream, sys_encode));
+        StringBuffer mvn_buffer = new StringBuffer();
+        String mvn_line;
+        while ((mvn_line = mvn_reader.readLine()) != null) {
+            mvn_buffer.append(mvn_line);
+        }
+        if (mvn_buffer.toString().contains("不是内部或外部命令")){
+            JOptionPane.showMessageDialog(jf,"M2_HOME环境变量未设置,mvn命令不能使用");
+            System.exit(0);
         }
         /*
         jar文件发布到本地仓库
@@ -54,7 +71,7 @@ public class AddJar2LocalRepo {
          -Dpackaging=jar
          -Dfile=D:\\swing-sets3.jar
          */
-        jf.setTitle("添加jar包到本地仓库");
+            jf.setTitle("添加jar包到本地仓库");
         jf.setSize(dimension2Int(screenSize.getWidth() * scale), dimension2Int(screenSize.getHeight() * scale));
         jf.setLocationRelativeTo(null);
         jf.setResizable(false);
@@ -103,13 +120,13 @@ public class AddJar2LocalRepo {
         groupId_info.setColumns(dimension2Int(jf.getWidth()) / 30);
         groupId_info.setForeground(new Color(14, 145, 253));
         groupId_info.setFont(new Font("楷体", Font.BOLD, 20));
-        groupId.setForeground(new Color(236,224,13));
+        groupId.setForeground(new Color(236, 224, 13));
         jPanel_groupId.add(groupId);
         jPanel_groupId.add(groupId_info);
 
         JPanel jPanel_artifactId = new JPanel(new FlowLayout(FlowLayout.LEADING));
         JLabel artifactId = new JLabel("          ArtifactId", JLabel.LEFT);
-        artifactId.setForeground(new Color(236,224,13));
+        artifactId.setForeground(new Color(236, 224, 13));
         artifactId.setFont(new Font("Consolas", Font.BOLD, 25));
         JTextField artifactId_info = new JTextField("artifactId");
         artifactId_info.setColumns(dimension2Int(jf.getWidth()) / 30);
@@ -121,7 +138,7 @@ public class AddJar2LocalRepo {
 
         JPanel jPanel_version = new JPanel(new FlowLayout(FlowLayout.LEADING));
         JLabel version = new JLabel("          Version   ", JLabel.LEFT);
-        version.setForeground(new Color(236,224,13));
+        version.setForeground(new Color(236, 224, 13));
         version.setFont(new Font("Consolas", Font.BOLD, 25));
         JTextField version_info = new JTextField("1.0-SNAPSHOT");
         version_info.setColumns(dimension2Int(jf.getWidth()) / 30);
@@ -335,7 +352,7 @@ public class AddJar2LocalRepo {
                     }
                 });*/
 //                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fileChooser.showDialog(jf, "选择输出路径");
+                fileChooser.showDialog(jf, "选择该jar包");
                 selectedFile = fileChooser.getSelectedFile();
                 if (selectedFile != null) {
                     jar_file_loc.setText(selectedFile.getAbsolutePath());
